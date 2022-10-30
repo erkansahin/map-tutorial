@@ -5,6 +5,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:map_tutorial_template/domain/permission/i_permission_service.dart';
 
+import '../../domain/permission/location_permission_status.dart';
+
 part 'permission_cubit.freezed.dart';
 part 'permission_state.dart';
 
@@ -42,6 +44,8 @@ class PermissionCubit extends Cubit<PermissionState> {
   }
 
   Future<void> requestLocationPermission() async {
-    await _permissionService.requestLocationPermission();
+    final status = await _permissionService.requestLocationPermission();
+    final bool isGranted = status == LocationPermissionStatus.granted;
+    emit(state.copyWith(isLocationPermissionGranted: isGranted));
   }
 }
