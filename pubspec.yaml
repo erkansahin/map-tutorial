@@ -41,6 +41,7 @@ dependencies:
   freezed_annotation: ^2.1.0
   latlong2: ^0.8.1
   geolocator: ^9.0.2
+  rxdart: ^0.27.5
 
 dev_dependencies:
   flutter_test:

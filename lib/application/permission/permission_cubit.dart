@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:map_tutorial_template/application/application_life_cycle/application_life_cycle_cubit.dart';
 import 'package:map_tutorial_template/domain/permission/i_permission_service.dart';
+import "package:rxdart/rxdart.dart";
 
 import '../../domain/permission/location_permission_status.dart';
 
@@ -13,8 +15,13 @@ part 'permission_state.dart';
 @lazySingleton
 class PermissionCubit extends Cubit<PermissionState> {
   final IPermissionService _permissionService;
+  final ApplicationLifeCycleCubit _applicationLifeCycleCubit;
   StreamSubscription? _locationServicesStatusSubscription;
-  PermissionCubit(this._permissionService) : super(PermissionState.initial()) {
+  StreamSubscription<Iterable<ApplicationLifeCycleState>>?
+      _appLifeCycleSubscription;
+
+  PermissionCubit(this._permissionService, this._applicationLifeCycleCubit)
+      : super(PermissionState.initial()) {
     _permissionService
         .isLocationPermissionGranted()
         .then((bool isLocationPermissionGranted) {
@@ -35,11 +42,23 @@ class PermissionCubit extends Cubit<PermissionState> {
       emit(
           state.copyWith(isLocationServicesEnabled: isLocationServicesEnabled));
     });
+    _appLifeCycleSubscription = _applicationLifeCycleCubit.stream
+        .startWith(_applicationLifeCycleCubit.state)
+        .pairwise()
+        .listen((pair) async {
+      final previous = pair.first;
+      final current = pair.last;
+      if (previous.isResumed != current.isResumed && current.isResumed) {
+        bool isGranted = await _permissionService.isLocationPermissionGranted();
+        emit(state.copyWith(isLocationPermissionGranted: isGranted));
+      }
+    });
   }
 
   @override
   Future<void> close() async {
     await _locationServicesStatusSubscription?.cancel();
+    await _appLifeCycleSubscription?.cancel();
     super.close();
   }
 
