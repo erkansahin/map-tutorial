@@ -8,4 +8,6 @@ class ApplicationLifeCycleState with _$ApplicationLifeCycleState {
   const factory ApplicationLifeCycleState.resumed() = _Resumed;
 
   const ApplicationLifeCycleState._();
+
+  bool get isResumed => maybeWhen(resumed: () => true, orElse: () => false);
 }
