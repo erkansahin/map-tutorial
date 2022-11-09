@@ -11,4 +11,7 @@ class PermissionState with _$PermissionState {
         isLocationServicesEnabled: false,
       );
   const PermissionState._();
+
+  bool get isLocationPermissionGrantedAndServicesEnabled =>
+      isLocationPermissionGranted && isLocationServicesEnabled;
 }
