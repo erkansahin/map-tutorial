@@ -10,6 +10,7 @@ import 'package:injectable/injectable.dart' as _i2;
 
 import 'application/application_life_cycle/application_life_cycle_cubit.dart'
     as _i3;
+import 'application/location/location_cubit.dart' as _i9;
 import 'application/permission/permission_cubit.dart' as _i8;
 import 'domain/location/i_location_service.dart' as _i4;
 import 'domain/permission/i_permission_service.dart' as _i6;
@@ -36,6 +37,10 @@ _i1.GetIt $initGetIt(
   gh.lazySingleton<_i8.PermissionCubit>(() => _i8.PermissionCubit(
         get<_i6.IPermissionService>(),
         get<_i3.ApplicationLifeCycleCubit>(),
+      ));
+  gh.factory<_i9.LocationCubit>(() => _i9.LocationCubit(
+        get<_i4.ILocationService>(),
+        get<_i8.PermissionCubit>(),
       ));
   return get;
 }
