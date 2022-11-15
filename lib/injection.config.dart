@@ -41,6 +41,7 @@ _i1.GetIt $initGetIt(
   gh.factory<_i9.LocationCubit>(() => _i9.LocationCubit(
         get<_i4.ILocationService>(),
         get<_i8.PermissionCubit>(),
+        get<_i3.ApplicationLifeCycleCubit>(),
       ));
   return get;
 }
