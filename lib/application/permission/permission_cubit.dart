@@ -62,6 +62,14 @@ class PermissionCubit extends Cubit<PermissionState> {
     super.close();
   }
 
+  Future<void> openAppSettings() async {
+    await _permissionService.openAppSettings();
+  }
+
+  Future<void> openLocationSettings() async {
+    await _permissionService.openLocationSettings();
+  }
+
   Future<void> requestLocationPermission() async {
     final status = await _permissionService.requestLocationPermission();
     final bool isGranted = status == LocationPermissionStatus.granted;

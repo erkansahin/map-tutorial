@@ -26,6 +26,16 @@ class PermissionService implements IPermissionService {
   }
 
   @override
+  Future<void> openAppSettings() {
+    return Geolocator.openAppSettings();
+  }
+
+  @override
+  Future<void> openLocationSettings() {
+    return Geolocator.openLocationSettings();
+  }
+
+  @override
   Future<LocationPermissionStatus> requestLocationPermission() async {
     final status = await Geolocator.requestPermission();
     LocationPermissionStatus result = LocationPermissionStatus.granted;
