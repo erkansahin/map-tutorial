@@ -143,7 +143,7 @@ class PermissionDialog extends StatelessWidget {
               onPressed: isLocationServicesEnabled
                   ? null
                   : () {
-                      debugPrint("Location permission button pressed!");
+                      debugPrint("Location services button pressed!");
                       context.read<PermissionCubit>().openLocationSettings();
                     },
               child: Text(isLocationServicesEnabled ? "allowed" : "allow"),
