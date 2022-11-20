@@ -56,26 +56,27 @@ class MapPage extends StatelessWidget {
                     debugPrint("Location Services button Pressed!");
                     // context.read<PermissionCubit>().requestLocationPermission();
                     showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          final bool isLocationPermissionGranted =
-                              context.select((PermissionCubit element) =>
-                                  element.state.isLocationPermissionGranted);
-                          final bool isLocationServicesEnabled = context.select(
-                              (PermissionCubit element) =>
-                                  element.state.isLocationServicesEnabled);
-                          return AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            content: PermissionDialog(
-                              isLocationPermissionGranted:
-                                  isLocationPermissionGranted,
-                              isLocationServicesEnabled:
-                                  isLocationServicesEnabled,
-                            ),
-                          );
-                        });
+                      context: context,
+                      builder: (BuildContext context) {
+                        final bool isLocationPermissionGranted = context.select(
+                            (PermissionCubit element) =>
+                                element.state.isLocationPermissionGranted);
+                        final bool isLocationServicesEnabled = context.select(
+                            (PermissionCubit element) =>
+                                element.state.isLocationServicesEnabled);
+                        return AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          content: PermissionDialog(
+                            isLocationPermissionGranted:
+                                isLocationPermissionGranted,
+                            isLocationServicesEnabled:
+                                isLocationServicesEnabled,
+                          ),
+                        );
+                      },
+                    );
                   },
                   child: const Text("Request Location Permission"),
                 ),
@@ -126,9 +127,28 @@ class PermissionDialog extends StatelessWidget {
                   ? null
                   : () {
                       debugPrint("Location permission button pressed!");
-                      context
-                          .read<PermissionCubit>()
-                          .requestLocationPermission();
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            content: AppSettingsDialog(
+                              openAppSettings: () {
+                                debugPrint("Open App Settings pressed!");
+                                context
+                                    .read<PermissionCubit>()
+                                    .openAppSettings();
+                              },
+                              cancelDialog: () {
+                                debugPrint("Cancel pressed!");
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          );
+                        },
+                      );
                     },
               child: Text(isLocationPermissionGranted ? "allowed" : "allow"),
             ),
@@ -147,6 +167,52 @@ class PermissionDialog extends StatelessWidget {
                       context.read<PermissionCubit>().openLocationSettings();
                     },
               child: Text(isLocationServicesEnabled ? "allowed" : "allow"),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+}
+
+class AppSettingsDialog extends StatelessWidget {
+  final Function openAppSettings;
+  final Function cancelDialog;
+  const AppSettingsDialog({
+    Key? key,
+    required this.openAppSettings,
+    required this.cancelDialog,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 10),
+        const Text(
+            "You need to open app settings to grant Location Permission"),
+        const SizedBox(height: 15),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton(
+              onPressed: () {
+                openAppSettings();
+              },
+              child: const Text("Open App Settings"),
+            ),
+            TextButton(
+              onPressed: () {
+                cancelDialog();
+              },
+              child: const Text(
+                "Cancel",
+                style: TextStyle(
+                  color: Colors.red,
+                ),
+              ),
             ),
           ],
         ),
