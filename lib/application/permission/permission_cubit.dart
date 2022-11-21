@@ -50,6 +50,10 @@ class PermissionCubit extends Cubit<PermissionState> {
       final current = pair.last;
       if (previous.isResumed != current.isResumed && current.isResumed) {
         bool isGranted = await _permissionService.isLocationPermissionGranted();
+        if (state.isLocationPermissionGranted != isGranted && isGranted) {
+          hideOpenAppSettingsDialog();
+        }
+
         emit(state.copyWith(isLocationPermissionGranted: isGranted));
       }
     });
@@ -60,6 +64,10 @@ class PermissionCubit extends Cubit<PermissionState> {
     await _locationServicesStatusSubscription?.cancel();
     await _appLifeCycleSubscription?.cancel();
     super.close();
+  }
+
+  void hideOpenAppSettingsDialog() {
+    emit(state.copyWith(displayOpenAppSettingsDialog: false));
   }
 
   Future<void> openAppSettings() async {
@@ -73,6 +81,12 @@ class PermissionCubit extends Cubit<PermissionState> {
   Future<void> requestLocationPermission() async {
     final status = await _permissionService.requestLocationPermission();
     final bool isGranted = status == LocationPermissionStatus.granted;
-    emit(state.copyWith(isLocationPermissionGranted: isGranted));
+    emit(
+      state.copyWith(
+        isLocationPermissionGranted: isGranted,
+        displayOpenAppSettingsDialog:
+            status == LocationPermissionStatus.deniedForever,
+      ),
+    );
   }
 }

@@ -14,6 +14,7 @@ class PermissionService implements IPermissionService {
   @override
   Future<bool> isLocationPermissionGranted() async {
     final status = await Geolocator.checkPermission();
+    print("permissionStatus $status");
     final isGranted = status == LocationPermission.always ||
         status == LocationPermission.whileInUse;
 

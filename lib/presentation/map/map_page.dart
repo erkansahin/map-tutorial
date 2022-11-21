@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:map_tutorial_template/application/location/location_cubit.dart';
 import 'package:map_tutorial_template/application/permission/permission_cubit.dart';
@@ -14,15 +13,60 @@ class MapPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<LocationCubit>(),
-      child: BlocListener<PermissionCubit, PermissionState>(
-        listenWhen: (p, c) {
-          return p.isLocationPermissionGrantedAndServicesEnabled !=
-                  c.isLocationPermissionGrantedAndServicesEnabled &&
-              c.isLocationPermissionGrantedAndServicesEnabled;
-        },
-        listener: (context, state) {
-          Navigator.of(context).pop();
-        },
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<PermissionCubit, PermissionState>(
+            listenWhen: (p, c) {
+              return p.isLocationPermissionGrantedAndServicesEnabled !=
+                      c.isLocationPermissionGrantedAndServicesEnabled &&
+                  c.isLocationPermissionGrantedAndServicesEnabled;
+            },
+            listener: (context, state) {
+              Navigator.of(context).pop();
+            },
+          ),
+          BlocListener<PermissionCubit, PermissionState>(
+            listenWhen: (previous, current) =>
+                previous.displayOpenAppSettingsDialog !=
+                    current.displayOpenAppSettingsDialog &&
+                current.displayOpenAppSettingsDialog,
+            listener: (context, state) {
+              //
+              showDialog(
+                barrierDismissible: false,
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    content: AppSettingsDialog(
+                      openAppSettings: () {
+                        debugPrint("Open App Settings pressed!");
+                        context.read<PermissionCubit>().openAppSettings();
+                      },
+                      cancelDialog: () {
+                        debugPrint("Cancel pressed!");
+                        context
+                            .read<PermissionCubit>()
+                            .hideOpenAppSettingsDialog();
+                      },
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+          BlocListener<PermissionCubit, PermissionState>(
+            listenWhen: (previous, current) =>
+                previous.displayOpenAppSettingsDialog !=
+                    current.displayOpenAppSettingsDialog &&
+                !current.displayOpenAppSettingsDialog,
+            listener: (context, state) {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
         child: Scaffold(
           appBar: AppBar(
             title: const Text("Map Tutorial"),
@@ -37,7 +81,7 @@ class MapPage extends StatelessWidget {
                   },
                   builder: (context, isLocationPermissionGranted) {
                     return Text(
-                        "Location Permission: ${isLocationPermissionGranted ? "enabled" : "disabled"}");
+                        "Location Permission: //${isLocationPermissionGranted ? "enabled" : "disabled"}");
                   },
                 ),
                 const SizedBox(height: 20),
@@ -127,28 +171,9 @@ class PermissionDialog extends StatelessWidget {
                   ? null
                   : () {
                       debugPrint("Location permission button pressed!");
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            content: AppSettingsDialog(
-                              openAppSettings: () {
-                                debugPrint("Open App Settings pressed!");
-                                context
-                                    .read<PermissionCubit>()
-                                    .openAppSettings();
-                              },
-                              cancelDialog: () {
-                                debugPrint("Cancel pressed!");
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          );
-                        },
-                      );
+                      context
+                          .read<PermissionCubit>()
+                          .requestLocationPermission();
                     },
               child: Text(isLocationPermissionGranted ? "allowed" : "allow"),
             ),
@@ -166,7 +191,9 @@ class PermissionDialog extends StatelessWidget {
                       debugPrint("Location services button pressed!");
                       context.read<PermissionCubit>().openLocationSettings();
                     },
-              child: Text(isLocationServicesEnabled ? "allowed" : "allow"),
+              child: Text(isLocationServicesEnabled
+                  ? "Allowed"
+                  : "Open Location Settings"),
             ),
           ],
         ),
