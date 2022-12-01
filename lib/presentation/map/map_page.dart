@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:map_tutorial_template/application/location/location_cubit.dart';
 import 'package:map_tutorial_template/application/permission/permission_cubit.dart';
 import 'package:map_tutorial_template/domain/location/location_model.dart';
@@ -69,69 +71,17 @@ class MapPage extends StatelessWidget {
             title: const Text("Map Tutorial"),
           ),
           body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                BlocSelector<PermissionCubit, PermissionState, bool>(
-                  selector: (state) {
-                    return state.isLocationPermissionGranted;
-                  },
-                  builder: (context, isLocationPermissionGranted) {
-                    return Text(
-                        "Location Permission: //${isLocationPermissionGranted ? "enabled" : "disabled"}");
-                  },
+            child: FlutterMap(
+              options: MapOptions(
+                center: LatLng(51.509, -0.128),
+                zoom: 3.0,
+              ),
+              layers: [
+                TileLayerOptions(
+                  urlTemplate:
+                      'https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.example.map_tutorial',
                 ),
-                const SizedBox(height: 20),
-                BlocSelector<PermissionCubit, PermissionState, bool>(
-                  selector: (state) {
-                    return state.isLocationServicesEnabled;
-                  },
-                  builder: (context, isLocationServicesEnabled) {
-                    return Text(
-                        "Location Services: ${isLocationServicesEnabled ? "enabled" : "disabled"}");
-                  },
-                ),
-                const SizedBox(height: 20),
-                OutlinedButton(
-                  onPressed: () {
-                    debugPrint("Location Services button Pressed!");
-                    // context.read<PermissionCubit>().requestLocationPermission();
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        final bool isLocationPermissionGranted = context.select(
-                            (PermissionCubit element) =>
-                                element.state.isLocationPermissionGranted);
-                        final bool isLocationServicesEnabled = context.select(
-                            (PermissionCubit element) =>
-                                element.state.isLocationServicesEnabled);
-                        return AlertDialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
-                          content: PermissionDialog(
-                            isLocationPermissionGranted:
-                                isLocationPermissionGranted,
-                            isLocationServicesEnabled:
-                                isLocationServicesEnabled,
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  child: const Text("Request Location Permission"),
-                ),
-                const SizedBox(height: 20),
-                BlocSelector<LocationCubit, LocationState, LocationModel>(
-                  selector: (state) {
-                    return state.userLocation;
-                  },
-                  builder: (context, userLocation) {
-                    return Text(
-                        "Latitude: ${userLocation.latitude}  Longitude: ${userLocation.longitude}");
-                  },
-                ),
-                // PermissionDialog(),
               ],
             ),
           ),
