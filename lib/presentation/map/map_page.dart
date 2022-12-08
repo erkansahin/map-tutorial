@@ -94,15 +94,16 @@ class MapPage extends StatelessWidget {
                         MarkerLayerOptions(
                           markers: [
                             Marker(
-                                point: LatLng(state.userLocation.latitude,
-                                    state.userLocation.longitude),
-                                width: 60,
-                                height: 60,
-                                builder: (context) {
-                                  return const UserMarker();
-                                }),
+                              point: LatLng(state.userLocation.latitude,
+                                  state.userLocation.longitude),
+                              width: 60,
+                              height: 60,
+                              builder: (context) {
+                                return const UserMarker();
+                              },
+                            ),
                           ],
-                        )
+                        ),
                       ],
                     );
                   },
@@ -165,7 +166,7 @@ class LocationButton extends StatelessWidget {
       ),
       onPressed: () {
         debugPrint("Location Services button Pressed!");
-        // context.read<PermissionCubit>().requestLocationPermission();
+
         showDialog(
           context: context,
           builder: (BuildContext context) {
