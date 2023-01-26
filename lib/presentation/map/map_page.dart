@@ -79,7 +79,7 @@ class MapPage extends StatelessWidget {
                   buildWhen: (p, c) {
                     return p.userLocation != c.userLocation;
                   },
-                  builder: (context, state) {
+                  builder: (context, loactionState) {
                     return FlutterMap(
                       options: MapOptions(
                         center: LatLng(51.509, -0.128),
@@ -94,8 +94,8 @@ class MapPage extends StatelessWidget {
                         MarkerLayerOptions(
                           markers: [
                             Marker(
-                              point: LatLng(state.userLocation.latitude,
-                                  state.userLocation.longitude),
+                              point: LatLng(loactionState.userLocation.latitude,
+                                  loactionState.userLocation.longitude),
                               width: 60,
                               height: 60,
                               builder: (context) {
