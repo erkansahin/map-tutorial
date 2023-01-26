@@ -9,4 +9,5 @@ class LocationState with _$LocationState {
         userLocation: LocationModel.empty(),
       );
   const LocationState._();
+  bool get isUserLocationReady => userLocation != LocationModel.empty();
 }

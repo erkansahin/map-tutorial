@@ -8,9 +8,15 @@ import 'package:map_tutorial_template/domain/location/location_model.dart';
 
 import '../../injection.dart';
 
-class MapPage extends StatelessWidget {
+class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
 
+  @override
+  State<MapPage> createState() => _MapPageState();
+}
+
+class _MapPageState extends State<MapPage> {
+  final mapController = MapController();
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -79,8 +85,9 @@ class MapPage extends StatelessWidget {
                   buildWhen: (p, c) {
                     return p.userLocation != c.userLocation;
                   },
-                  builder: (context, loactionState) {
+                  builder: (context, locationState) {
                     return FlutterMap(
+                      mapController: mapController,
                       options: MapOptions(
                         center: LatLng(51.509, -0.128),
                         zoom: 3.0,
@@ -93,15 +100,17 @@ class MapPage extends StatelessWidget {
                         ),
                         MarkerLayerOptions(
                           markers: [
-                            Marker(
-                              point: LatLng(loactionState.userLocation.latitude,
-                                  loactionState.userLocation.longitude),
-                              width: 60,
-                              height: 60,
-                              builder: (context) {
-                                return const UserMarker();
-                              },
-                            ),
+                            if (locationState.isUserLocationReady)
+                              Marker(
+                                point: LatLng(
+                                    locationState.userLocation.latitude,
+                                    locationState.userLocation.longitude),
+                                width: 60,
+                                height: 60,
+                                builder: (context) {
+                                  return const UserMarker();
+                                },
+                              ),
                           ],
                         ),
                       ],
@@ -121,6 +130,28 @@ class MapPage extends StatelessWidget {
                           right: 30,
                           bottom: 50,
                           child: LocationButton(),
+                        );
+                },
+              ),
+              BlocBuilder<LocationCubit, LocationState>(
+                buildWhen: (p, c) {
+                  return p.isUserLocationReady != c.isUserLocationReady;
+                },
+                builder: (context, state) {
+                  return !state.isUserLocationReady
+                      ? const SizedBox.shrink()
+                      : Positioned(
+                          left: 30,
+                          bottom: 50,
+                          child: CenterButton(
+                            onPressed: () {
+                              mapController.move(
+                                LatLng(state.userLocation.latitude,
+                                    state.userLocation.longitude),
+                                mapController.zoom,
+                              );
+                            },
+                          ),
                         );
                 },
               ),
@@ -189,6 +220,33 @@ class _UserMarkerState extends State<UserMarker>
         color: Colors.white,
         size: 35,
       ),
+    );
+  }
+}
+
+class CenterButton extends StatelessWidget {
+  final Function onPressed;
+  const CenterButton({
+    Key? key,
+    required this.onPressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+          (Set<MaterialState> states) {
+            return Colors.black;
+          },
+        ),
+      ),
+      onPressed: () {
+        debugPrint("Center button Pressed!");
+
+        onPressed();
+      },
+      child: const Text("Center"),
     );
   }
 }
