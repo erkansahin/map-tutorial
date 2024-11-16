@@ -4,12 +4,11 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:map_tutorial_template/application/location/location_cubit.dart';
 import 'package:map_tutorial_template/application/permission/permission_cubit.dart';
-import 'package:map_tutorial_template/domain/location/location_model.dart';
 
 import '../../injection.dart';
 
 class MapPage extends StatefulWidget {
-  const MapPage({Key? key}) : super(key: key);
+  const MapPage({super.key});
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -89,16 +88,17 @@ class _MapPageState extends State<MapPage> {
                     return FlutterMap(
                       mapController: mapController,
                       options: MapOptions(
-                        center: LatLng(51.509, -0.128),
-                        zoom: 3.0,
+                        initialCenter: LatLng(51.509, -0.128),
+                        initialZoom: 3.0,
                       ),
-                      layers: [
-                        TileLayerOptions(
+                      children: [
+                        TileLayer(
                           urlTemplate:
-                              'https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.png',
+                              //'https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.png',
+                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                           userAgentPackageName: 'com.example.map_tutorial',
                         ),
-                        MarkerLayerOptions(
+                        MarkerLayer(
                           markers: [
                             if (locationState.isUserLocationReady)
                               Marker(
@@ -107,9 +107,7 @@ class _MapPageState extends State<MapPage> {
                                     locationState.userLocation.longitude),
                                 width: 60,
                                 height: 60,
-                                builder: (context) {
-                                  return const UserMarker();
-                                },
+                                child: const UserMarker(),
                               ),
                           ],
                         ),
@@ -148,7 +146,7 @@ class _MapPageState extends State<MapPage> {
                               mapController.move(
                                 LatLng(state.userLocation.latitude,
                                     state.userLocation.longitude),
-                                mapController.zoom,
+                                mapController.camera.zoom,
                               );
                             },
                           ),
@@ -164,7 +162,7 @@ class _MapPageState extends State<MapPage> {
 }
 
 class UserMarker extends StatefulWidget {
-  const UserMarker({Key? key}) : super(key: key);
+  const UserMarker({super.key});
 
   @override
   State<UserMarker> createState() => _UserMarkerState();
@@ -227,16 +225,16 @@ class _UserMarkerState extends State<UserMarker>
 class CenterButton extends StatelessWidget {
   final Function onPressed;
   const CenterButton({
-    Key? key,
+    super.key,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-          (Set<MaterialState> states) {
+        backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+          (Set<WidgetState> states) {
             return Colors.black;
           },
         ),
@@ -252,14 +250,14 @@ class CenterButton extends StatelessWidget {
 }
 
 class LocationButton extends StatelessWidget {
-  const LocationButton({Key? key}) : super(key: key);
+  const LocationButton({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-          (Set<MaterialState> states) {
+        backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+          (Set<WidgetState> states) {
             return Colors.black;
           },
         ),
@@ -297,10 +295,10 @@ class PermissionDialog extends StatelessWidget {
   final bool isLocationPermissionGranted;
   final bool isLocationServicesEnabled;
   const PermissionDialog({
-    Key? key,
+    super.key,
     required this.isLocationPermissionGranted,
     required this.isLocationServicesEnabled,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -354,10 +352,10 @@ class AppSettingsDialog extends StatelessWidget {
   final Function openAppSettings;
   final Function cancelDialog;
   const AppSettingsDialog({
-    Key? key,
+    super.key,
     required this.openAppSettings,
     required this.cancelDialog,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
